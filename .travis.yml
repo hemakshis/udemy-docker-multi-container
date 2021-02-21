@@ -1,0 +1,24 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -f ./client/Dockerfile.dev -t hemakshis/udemy-docker-multi-container-client-test ./client
+
+script:
+  - docker run -e CI=true -t hemakshis/udemy-docker-multi-container-client-test npm run test -- --coverage
+
+after_success:
+  # Build all the images
+  - docker build -t hemakshis/udemy-docker-multi-container-client ./client
+  - docker build -t hemakshis/udemy-docker-multi-container-nginx ./nginx
+  - docker build -t hemakshis/udemy-docker-multi-container-server ./server
+  - docker build -t hemakshis/udemy-docker-multi-container-worker ./worker
+  # Login to the Docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Push these images to Docker Hub
+  - docker push hemakshis/udemy-docker-multi-container-client
+  - docker push hemakshis/udemy-docker-multi-container-nginx
+  - docker push hemakshis/udemy-docker-multi-container-server
+  - docker push hemakshis/udemy-docker-multi-container-worker
+
