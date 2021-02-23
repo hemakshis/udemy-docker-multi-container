@@ -22,3 +22,14 @@ after_success:
   - docker push hemakshis/udemy-docker-multi-container-server
   - docker push hemakshis/udemy-docker-multi-container-worker
 
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-2"
+  app: "udemy-docker-multi-container"
+  env: "Udemydockermulticontainer-env-1"
+  bucket_name: "elasticbeanstalk-us-east-2-684037825765"
+  bucket_path: "udemy-docker-multi-container"
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
