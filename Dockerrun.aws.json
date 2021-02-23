@@ -1,0 +1,37 @@
+{
+	"AWSEBDockerrunVersion": 2,
+	"containerDefinitions": [
+		{
+			"name": "client",
+			"image": "hemakshis/udemy-docker-multi-client",
+			"hostname": "client",
+			"essential": false
+		},
+		{
+			"name": "nginx",
+			"image": "hemakshis/udemy-docker-multi-nginx",
+			"essential": true,
+			"portMappings": [
+				{
+					"hostPort": 80,
+					"containerPort": 80
+				}
+			],
+			"links": [
+				"client",
+				"server"
+			]
+		},
+		{
+			"name": "server",
+			"image": "hemakshis/udemy-docker-multi-server",
+			"hostname": "api",
+			"essential": false
+		},
+		{
+			"name": "worker",
+			"image": "hemakshis/udemy-docker-multi-worker",
+			"essential": false
+		}
+	]
+}

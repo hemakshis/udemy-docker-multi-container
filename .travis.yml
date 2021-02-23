@@ -1,0 +1,35 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -f ./client/Dockerfile.dev -t hemakshis/udemy-docker-multi-container-client-test ./client
+
+script:
+  - docker run -e CI=true -t hemakshis/udemy-docker-multi-container-client-test npm run test -- --coverage
+
+after_success:
+  # Build all the images
+  - docker build -t hemakshis/udemy-docker-multi-container-client ./client
+  - docker build -t hemakshis/udemy-docker-multi-container-nginx ./nginx
+  - docker build -t hemakshis/udemy-docker-multi-container-server ./server
+  - docker build -t hemakshis/udemy-docker-multi-container-worker ./worker
+  # Login to the Docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Push these images to Docker Hub
+  - docker push hemakshis/udemy-docker-multi-container-client
+  - docker push hemakshis/udemy-docker-multi-container-nginx
+  - docker push hemakshis/udemy-docker-multi-container-server
+  - docker push hemakshis/udemy-docker-multi-container-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-2"
+  app: "udemy-docker-multi-container"
+  env: "Udemydockermulticontainer-env-1"
+  bucket_name: "elasticbeanstalk-us-east-2-684037825765"
+  bucket_path: "udemy-docker-multi-container"
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
